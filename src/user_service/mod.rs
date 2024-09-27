@@ -5,6 +5,7 @@ mod domain;
 mod user_database;
 mod service;
 mod err;
+mod token_provider;
 
 #[derive(Clone)]
 struct UserServiceState {
