@@ -1,14 +1,14 @@
-use axum::async_trait;
-use bcrypt::{hash, DEFAULT_COST};
+use bcrypt::{hash, verify, DEFAULT_COST};
 use serde::Deserialize;
-
 use super::domain::Client;
-use super::err::Result;
+use super::err::{Result, UserServiceError};
+use super::token_provider::TokenProvider;
 use super::user_database::ClientDb;
 
 
-struct ClientService {
-    client_db: ClientDb
+pub struct ClientService {
+    client_db: ClientDb,
+    token_provider: TokenProvider
 }
 
 #[derive(Debug, Deserialize)]
@@ -18,7 +18,12 @@ pub struct ClientInfo {
 }
 
 impl ClientService {
-    async fn register_client(&self, client_info: ClientInfo) -> Result<()> {
+
+    pub fn new(client_db: ClientDb, token_provider: TokenProvider) -> Self {
+        Self { client_db , token_provider }
+    }
+
+    pub async fn register_client(&self, client_info: ClientInfo) -> Result<String> {
         let hashed_password = hash(client_info.password, DEFAULT_COST)?;
 
         let client = Client {
@@ -27,9 +32,26 @@ impl ClientService {
             encrypted_password: hashed_password
         };
 
-        self.client_db.add_client(client)
+        self.client_db.add_client(&client)
             .await?;
 
-        Ok(())
+        let token = self.token_provider.generate_token(client.client_name)?;
+
+        Ok(token)
+    }
+
+    pub async fn login_client(&self, client_info: ClientInfo) -> Result<String> {
+        let hashed_password = self.client_db.get_encrypted_password(&client_info.client_name)
+            .await?;
+
+        let correct = verify(&client_info.password, &hashed_password)?;
+
+        if !correct {
+            return Err(UserServiceError::InvalidPassword(client_info.password));
+        }
+
+        let token = self.token_provider.generate_token(client_info.client_name)?;
+
+        Ok(token)
     }
 }

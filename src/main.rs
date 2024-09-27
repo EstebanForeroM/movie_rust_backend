@@ -11,11 +11,13 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
     tracing_subscriber::fmt::init();
 
     let postgres_pool = get_postgres_pool().await; 
+    let token_jwt = env::var("").expect("JWT SECRET expected");
 
-    let user_service_router = user_service::get_router(postgres_pool);
+    let user_service_router = user_service::get_router(postgres_pool, token_jwt);
 
     let app = Router::new()
-        .route("/", get(root));
+        .route("/", get(root))
+        .nest("/user", user_service_router);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
