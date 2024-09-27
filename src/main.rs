@@ -1,5 +1,5 @@
 mod user_service;
-use std::{borrow::Cow, env, error, time::Duration};
+use std::{env, error, time::Duration};
 
 use axum::{routing::get, Router};
 use dotenvy::dotenv;
