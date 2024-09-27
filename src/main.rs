@@ -4,6 +4,7 @@ use std::{env, error, time::Duration};
 use axum::{routing::get, Router};
 use dotenvy::dotenv;
 use sqlx::{postgres::PgPoolOptions, PgPool};
+use tower_http::cors::CorsLayer;
 use tracing::{info, warn};
 
 #[tokio::main]
@@ -18,7 +19,8 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
 
     let app = Router::new()
         .route("/", get(root))
-        .nest("/user", user_service_router);
+        .nest("/user", user_service_router)
+        .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
