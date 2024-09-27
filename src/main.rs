@@ -4,6 +4,7 @@ use std::{env, error, time::Duration};
 use axum::{routing::get, Router};
 use dotenvy::dotenv;
 use sqlx::{postgres::PgPoolOptions, PgPool};
+use tracing::{info, warn};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error>> {
@@ -11,7 +12,7 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
     tracing_subscriber::fmt::init();
 
     let postgres_pool = get_postgres_pool().await; 
-    let token_jwt = env::var("").expect("JWT SECRET expected");
+    let token_jwt = env::var("JWT_SECRET").expect("JWT SECRET expected");
 
     let user_service_router = user_service::get_router(postgres_pool, token_jwt);
 
@@ -22,6 +23,8 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
         .unwrap();
+
+    info!("Server just started listening in port 3000");
 
     axum::serve(listener, app)
         .await
