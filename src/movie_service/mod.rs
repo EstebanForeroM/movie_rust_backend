@@ -1,6 +1,7 @@
-use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::{get, post}, Extension, Router};
+use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::{get, post}, Extension, Json, Router};
+use domain::MovieConstructor;
 use movie_database::MovieDb;
-use sqlx::PgPool;
+use sqlx::{types::Json, PgPool};
 use tracing::error;
 
 use crate::auth_middleware::ClientInfo;
@@ -27,6 +28,8 @@ pub fn get_router(db_pool: PgPool) -> Router {
         .route("/movie/page/:pageIndex/:quantity", get(get_movies))
         .route("/movie/:movieId", get(get_movie))
         .route("/basic_data_movie/page/:pageIndex/:quantity", get(get_movie_basic_data))
+        // POSTS
+        .route("/movie", post(create_movie))
         .with_state(MovieServiceState {
             db_pool,
         })
@@ -34,6 +37,12 @@ pub fn get_router(db_pool: PgPool) -> Router {
 
 async fn health_check(Extension(client_info): Extension<ClientInfo>) -> String {
     format!("movie service alive, and client name is: {}", client_info.client_name)
+}
+
+async fn create_movie(State(state): State<MovieServiceState>, Json(movie_constructor): Json<MovieConstructor>) -> Result<impl IntoResponse, StatusCode> {
+
+
+    Ok(StatusCode::OK)
 }
 
 async fn get_movie_basic_data(State(state): State<MovieServiceState>, Path((page, quantity)): Path<(i64, i64)>) -> Result<impl IntoResponse, StatusCode> {
