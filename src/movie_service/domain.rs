@@ -1,9 +1,20 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Clone)]
 pub struct Genre {
     pub genre_id: i32,
     pub genre_name: String
+}
+
+#[derive(Debug, Serialize, Clone, Deserialize)]
+pub struct GenreConstructor {
+    pub genre_name: String
+}
+
+impl GenreConstructor {
+    pub fn to_genre(self) -> Genre {
+        Genre {genre_id: 0, genre_name: self.genre_name}
+    }
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -12,10 +23,32 @@ pub struct Country {
     pub country_name: String
 }
 
+#[derive(Debug, Serialize, Clone, Deserialize)]
+pub struct CountryConstructor {
+    pub country_name: String
+}
+
+impl CountryConstructor {
+    pub fn to_country(self) -> Country {
+        Country { country_id: 0, country_name: self.country_name }
+    } 
+}
+
 #[derive(Debug, Serialize, Clone)]
 pub struct Language {
     pub language_id: i32,
     pub language_name: String
+}
+
+#[derive(Debug, Serialize, Clone, Deserialize)]
+pub struct LanguageConstructor {
+    pub language_name: String
+}
+
+impl LanguageConstructor {
+    pub fn to_language(self) -> Language {
+        Language { language_id: 0, language_name: self.language_name }
+    }
 }
 
 #[derive(Debug, Serialize, Clone)]
