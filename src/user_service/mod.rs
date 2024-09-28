@@ -40,7 +40,7 @@ async fn login_client(State(state): State<UserServiceState>, Json(client_info): 
 
     let service = ClientService::new(client_db, token_provider);
 
-    let token = service.register_client(client_info)
+    let token = service.login_client(client_info)
         .await.map_err(|err| {
             error!("Error logging in the client: {}", err);
             StatusCode::INTERNAL_SERVER_ERROR
@@ -55,7 +55,7 @@ async fn register_client(State(state): State<UserServiceState>, Json(client_info
 
     let service = ClientService::new(client_db, token_provider);
 
-    let token = service.login_client(client_info)
+    let token = service.register_client(client_info)
         .await.map_err(|err| {
             error!("Error registering client: {}", err);
             StatusCode::INTERNAL_SERVER_ERROR
