@@ -1,7 +1,7 @@
 use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::{get, post}, Extension, Json, Router};
 use domain::{ClassificationConstructor, CountryConstructor, GenreConstructor, LanguageConstructor, MovieConstructor};
 use movie_database::MovieDb;
-use sqlx::{types::Json, PgPool};
+use sqlx::PgPool;
 use tracing::error;
 
 use crate::auth_middleware::ClientInfo;
