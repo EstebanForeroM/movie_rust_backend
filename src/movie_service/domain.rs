@@ -73,7 +73,7 @@ pub struct BasicMovie {
     pub image_url: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct MovieConstructor {
     pub distribution_title: String,
     pub original_title: String,
@@ -85,4 +85,22 @@ pub struct MovieConstructor {
     pub duration_hours: i32,
     pub summary: Option<String>,
     pub classification: String
+}
+
+impl MovieConstructor {
+    pub fn to_movie(self) -> Movie {
+        Movie {
+            movie_id: 0,
+            distribution_title: self.distribution_title,
+            original_title: self.original_title,
+            original_language: self.original_language,
+            has_spanish_subtitles: self.has_spanish_subtitles,
+            production_year: self.production_year,
+            website_url: self.website_url,
+            image_url: self.image_url,
+            duration_hours: self.duration_hours,
+            summary: self.summary,
+            classification: self.classification
+        }
+    }
 }
