@@ -125,7 +125,7 @@ WHERE m.movie_id = $1", movie_id)
         Ok(language)
     }
 
-    pub async fn get_language_id(&self, language_name: String) -> Result<i32> {
+    pub async fn get_language_id(&self, language_name: String) -> Result<Option<i32>> {
         let language_id = sqlx::query_scalar!("SELECT language_id FROM language WHERE language_name = $1", language_name)
             .fetch_optional(&self.pool).await?;
 
@@ -157,7 +157,7 @@ WHERE m.movie_id = $1", movie_id)
         Ok(())
     }
 
-    pub async fn get_country_id(&self, country_name: String) -> Result<i32> {
+    pub async fn get_country_id(&self, country_name: String) -> Result<Option<i32>> {
         let country_id = sqlx::query_scalar!("SELECT country_id FROM country WHERE country_name = $1", country_name)
             .fetch_optional(&self.pool).await?;
 
@@ -196,13 +196,20 @@ WHERE m.movie_id = $1", movie_id)
         Ok(classification)
     }
 
+    pub async fn get_classification_id(&self, classification_name: String) -> Result<Option<i32>> {
+        let classification_id = sqlx::query_scalar!("SELECT classification_id FROM classification WHERE classification_name = $1", classification_name)
+            .fetch_optional(&self.pool).await?;
+
+        Ok(classification_id)
+    }
+
     pub async fn create_classification_db(&self, classification_name: String) -> Result<()> {
         sqlx::query!("INSERT INTO classification(classification_name) VALUES($1)", classification_name)
         .execute(&self.pool).await?;
         Ok(())
     }
 
-    pub async fn get_genre_id(&self, genre_name: String) -> Result<i32> {
+    pub async fn get_genre_id(&self, genre_name: String) -> Result<Option<i32>> {
         let genre_id = sqlx::query_scalar!("SELECT country_id FROM country WHERE country_name = $1", genre_name)
             .fetch_optional(&self.pool).await?;
 
