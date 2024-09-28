@@ -2,7 +2,7 @@ pub mod user_service;
 mod movie_service;
 use std::{env, error, time::Duration};
 
-use axum::{routing::get, Router};
+use axum::{middleware, routing::get, Router};
 use dotenvy::dotenv;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tower_http::cors::CorsLayer;
@@ -17,11 +17,15 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
     let postgres_pool = get_postgres_pool().await; 
     let token_jwt = env::var("JWT_SECRET").expect("JWT SECRET expected");
 
-    let user_service_router = user_service::get_router(postgres_pool, token_jwt);
+    let user_service_router = user_service::get_router(postgres_pool.clone(), token_jwt.clone());
+
+    let movie_service_router = movie_service::get_router(postgres_pool)
+        .route_layer(middleware::from_fn_with_state(token_jwt, auth_middleware::auth_middleware));
 
     let app = Router::new()
         .route("/", get(root))
         .nest("/user", user_service_router)
+        .nest("/movie", movie_service_router)
         .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")

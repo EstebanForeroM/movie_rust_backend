@@ -16,13 +16,15 @@ pub async fn auth_middleware(
 
     let token_provider = TokenProvider::new(jwt_secret);
 
-    let jwt_token = request.headers().get("bearer")
+    let authorization_header = request.headers().get("Authorization")
         .ok_or(StatusCode::UNAUTHORIZED)?;
 
-    let jwt_token_string = jwt_token.to_str().map_err(|err| {
-        error!("Error mapping the jwt token to string: {}", err);
+    let auth_str = authorization_header.to_str().map_err(|err| {
+        error!("Error converting auth header to string: {}", err);
         StatusCode::BAD_REQUEST
     })?;
+
+    let jwt_token_string = auth_str.strip_prefix("Bearer ").ok_or(StatusCode::UNAUTHORIZED)?;
 
     let claims = token_provider.verify_token(jwt_token_string)
         .map_err(|err| {
