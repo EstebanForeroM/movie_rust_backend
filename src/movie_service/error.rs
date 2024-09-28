@@ -15,5 +15,18 @@ pub enum MovieServiceError {
     JsonWebTokenError(#[from] jsonwebtoken::errors::Error),
 
     #[error("Invalid password")]
-    InvalidPassword(String)
+    InvalidPassword(String),
+
+    #[error("Invalid language name")]
+    InvalidLanguageName(String),
+
+    #[error("Invalid genre name")]
+    InvalidGenreName(String),
+
+    #[error("Invalid country name")]
+    InvalidCountryName(String),
+
+    #[error("Invalid classification name")]
+    InvalidClassificationName(String),
+
 }

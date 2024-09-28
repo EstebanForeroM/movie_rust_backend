@@ -51,7 +51,9 @@ pub struct MovieConstructor {
     pub image_url: String,
     pub duration_hours: i32,
     pub summary: Option<String>,
-    pub classification: String
+    pub classification: String,
+    pub origin_country: String,
+    pub genre: String,
 }
 
 impl MovieConstructor {

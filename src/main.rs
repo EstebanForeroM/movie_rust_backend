@@ -7,7 +7,6 @@ use dotenvy::dotenv;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tower_http::cors::CorsLayer;
 use tracing::info;
-use tracing::warn;
 mod auth_middleware;
 
 #[tokio::main]
