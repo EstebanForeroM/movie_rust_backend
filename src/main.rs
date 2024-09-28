@@ -1,4 +1,5 @@
-mod user_service;
+pub mod user_service;
+mod movie_service;
 use std::{env, error, time::Duration};
 
 use axum::{routing::get, Router};
@@ -6,6 +7,7 @@ use dotenvy::dotenv;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tower_http::cors::CorsLayer;
 use tracing::{info, warn};
+mod auth_middleware;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error>> {

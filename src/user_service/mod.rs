@@ -10,7 +10,7 @@ mod domain;
 mod user_database;
 mod service;
 mod err;
-mod token_provider;
+pub mod token_provider;
 
 #[derive(Debug, Serialize)]
 struct AuthResponse {
