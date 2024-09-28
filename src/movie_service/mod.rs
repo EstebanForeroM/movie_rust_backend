@@ -1,5 +1,5 @@
 use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::{get, post}, Extension, Json, Router};
-use domain::MovieConstructor;
+use domain::{ClassificationConstructor, CountryConstructor, GenreConstructor, LanguageConstructor, MovieConstructor};
 use movie_database::MovieDb;
 use sqlx::{types::Json, PgPool};
 use tracing::error;
@@ -23,12 +23,17 @@ pub fn get_router(db_pool: PgPool) -> Router {
         .route("/genre/:genreId", get(get_genre))
         .route("/country", get(get_countries))
         .route("/country/:countryId", get(get_country))
+        .route("/classification", get(get_classifications))
+        .route("/classification/:classificationId", get(get_classification))
         .route("/language", get(get_languages))
         .route("/language/:languageId", get(get_language))
         .route("/movie/page/:pageIndex/:quantity", get(get_movies))
         .route("/movie/:movieId", get(get_movie))
         .route("/basic_data_movie/page/:pageIndex/:quantity", get(get_movie_basic_data))
         // POSTS
+        .route("/language", post(create_language))
+        .route("/country", post(create_country))
+        .route("/genre", post(create_genre))
         .route("/movie", post(create_movie))
         .with_state(MovieServiceState {
             db_pool,
@@ -37,6 +42,40 @@ pub fn get_router(db_pool: PgPool) -> Router {
 
 async fn health_check(Extension(client_info): Extension<ClientInfo>) -> String {
     format!("movie service alive, and client name is: {}", client_info.client_name)
+}
+
+// new creates
+async fn create_language(State(state): State<MovieServiceState>, Json(language_constructor): Json<LanguageConstructor>) -> Result<impl IntoResponse, StatusCode> {
+    let db = MovieDb::new(state.db_pool);
+
+    db.create_language_db(language_constructor.language_name).await.map_err(|err| {
+        error!("Error creating a lenguage: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok(StatusCode::OK)
+}
+
+async fn create_country(State(state): State<MovieServiceState>, Json(country_constructor): Json<CountryConstructor>) -> Result<impl IntoResponse, StatusCode> {
+    let db = MovieDb::new(state.db_pool);
+
+    db.create_country_db(country_constructor.country_name).await.map_err(|err| {
+        error!("Error creating country: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok(StatusCode::OK)
+}
+
+async fn create_genre(State(state): State<MovieServiceState>, Json(genre_constructor): Json<GenreConstructor>) -> Result<impl IntoResponse, StatusCode> {
+    let db = MovieDb::new(state.db_pool);
+
+    db.create_genre_db(genre_constructor.genre_name).await.map_err(|err| {
+        error!("Error creating gengre: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok(StatusCode::OK)
 }
 
 async fn create_movie(State(state): State<MovieServiceState>, Json(movie_constructor): Json<MovieConstructor>) -> Result<impl IntoResponse, StatusCode> {
@@ -62,6 +101,51 @@ async fn get_movie_basic_data(State(state): State<MovieServiceState>, Path((page
 
     Ok((StatusCode::OK, movies_json))
 } 
+
+// get classification 
+async fn get_classifications(State(state): State<MovieServiceState>) -> Result<impl IntoResponse, StatusCode> {
+    let db = MovieDb::new(state.db_pool);
+
+    let classifications = db.get_classifications_db().await.map_err(|err| {
+        error!("Error getting classifications from db: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+    let classifications = serde_json::to_string(&classifications).map_err(|err| {
+        error!("Parsing classifications: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok((StatusCode::OK, classifications))
+}
+
+async fn get_classification(State(state): State<MovieServiceState>, Path(id): Path<i32>) -> Result<impl IntoResponse, StatusCode> {
+    let db = MovieDb::new(state.db_pool);
+
+    let classifications = db.get_classification_db(id).await.map_err(|err| {
+        error!("Error getting classifications from db: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    let classifications = serde_json::to_string(&classifications).map_err(|err| {
+        error!("Parsing classifications: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok((StatusCode::OK, classifications))
+}
+
+async fn create_classification(State(state): State<MovieServiceState>,
+    Json(classification_constructor): Json<ClassificationConstructor>) -> Result<impl IntoResponse, StatusCode> {
+
+    let db = MovieDb::new(state.db_pool);
+
+    db.create_classification_db(classification_constructor.classification_name).await.map_err(|err| {
+        error!("Error creating classification: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok(StatusCode::OK)
+}
 
 async fn get_movies(State(state): State<MovieServiceState>, Path((page, quantity)): Path<(i64, i64)>) -> Result<impl IntoResponse, StatusCode> {
     let movie_database = MovieDb::new(state.db_pool);

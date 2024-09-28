@@ -1,6 +1,6 @@
 use sqlx::PgPool;
 
-use super::domain::{BasicMovie, Country, Genre, Language, Movie};
+use super::domain::{BasicMovie, Classification, Country, Genre, Language, Movie};
 use super::error::Result;
 
 
@@ -53,6 +53,7 @@ WHERE m.movie_id = $1", movie_id)
         Ok(country)
     }
 
+    // languages
     pub async fn get_languages(&self) -> Result<Vec<Language>> {
         let languages = sqlx::query_as!(Language, "SELECT * FROM language")
             .fetch_all(&self.pool).await?;
@@ -67,6 +68,12 @@ WHERE m.movie_id = $1", movie_id)
         Ok(country)
     }
 
+    pub async fn create_language_db(&self, language_name: String) -> Result<()> {
+        sqlx::query!("INSERT INTO language(language_name) VALUES($1)", language_name).execute(&self.pool).await?;
+        Ok(())
+    }
+
+    // countries
     pub async fn get_countries(&self) -> Result<Vec<Country>> {
         let countries = sqlx::query_as!(Country, "SELECT * FROM country")
             .fetch_all(&self.pool).await?;
@@ -81,6 +88,12 @@ WHERE m.movie_id = $1", movie_id)
         Ok(country)
     }
 
+    pub async fn create_country_db(&self, country_name: String) -> Result<()> {
+        sqlx::query!("INSERT INTO country(country_name) VALUES($1)", country_name).execute(&self.pool).await?;
+        Ok(())
+    }
+
+    // gengres
     pub async fn get_genres(&self) -> Result<Vec<Genre>> {
         let genres = sqlx::query_as!(Genre, "SELECT * FROM genre")
             .fetch_all(&self.pool).await?;
@@ -93,5 +106,29 @@ WHERE m.movie_id = $1", movie_id)
             .fetch_one(&self.pool).await?;
 
         Ok(genres)
+    }
+    
+    pub async fn create_genre_db(&self, genre_name: String) -> Result<()> {
+        sqlx::query!("INSERT INTO genre(genre_name) VALUES($1)", genre_name).execute(&self.pool).await?;
+        Ok(())
+    }
+
+    // classifications
+    pub async fn get_classifications_db(&self) -> Result<Vec<Classification>> {
+        let classifications = sqlx::query_as!(Classification, "SELECT * FROM classification").fetch_all(&self.pool).await?;
+        Ok(classifications)
+    }
+
+    pub async fn get_classification_db(&self, classification_id: i32) -> Result<Classification> {
+        let classification = sqlx::query_as!(Classification, "SELECT * FROM classification WHERE classification_id = $1", classification_id)
+        .fetch_one(&self.pool).await?;
+
+        Ok(classification)
+    }
+
+    pub async fn create_classification_db(&self, classification_name: String) -> Result<()> {
+        sqlx::query!("INSERT INTO classification(classification_name) VALUES($1)", classification_name)
+        .execute(&self.pool).await?;
+        Ok(())
     }
 }

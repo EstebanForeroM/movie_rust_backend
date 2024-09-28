@@ -1,4 +1,21 @@
 use serde::{Deserialize, Serialize};
+// classifications
+#[derive(Debug, Serialize, Clone, Deserialize)]
+pub struct Classification {
+    pub classification_id: i32,
+    pub classification_name: String,
+}
+
+#[derive(Debug, Serialize, Clone, Deserialize)]
+pub struct ClassificationConstructor {
+    pub classification_name: String,
+}
+
+impl ClassificationConstructor {
+    pub fn to_classification(self) -> Classification {
+        Classification {classification_id: 0, classification_name: self.classification_name}
+    }
+}
 
 #[derive(Debug, Serialize, Clone)]
 pub struct Genre {
