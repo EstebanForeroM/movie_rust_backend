@@ -35,7 +35,7 @@ impl TokenProvider {
         };
 
         let token = encode (
-            &Header::default(),
+            &Header::new(jsonwebtoken::Algorithm::HS256),
             &claims,
             &EncodingKey::from_secret(self.token_key.as_ref())
         )?;
@@ -44,12 +44,26 @@ impl TokenProvider {
     }
 
     pub fn verify_token(&self, token: &str) -> Result<TokenData<Claims>> {
+
+        let mut validation =  Validation::new(jsonwebtoken::Algorithm::HS256);
+        validation.leeway = 60;
+
         let token_data = decode(
             token,
             &DecodingKey::from_secret(self.token_key.as_ref()),
-            &Validation::default()
+            &validation
         )?;
 
         Ok(token_data)
     }
+}
+
+#[test]
+fn test_token_provider_validity() {
+    let token_provider = TokenProvider::new("gxQy0CBeYonc3UByo72Q24B7K8EizgRo0NfzxMdwEoQ=".to_string());
+
+    let token_result = token_provider.generate_token("esteban".to_string()).unwrap();
+    let claims = token_provider.verify_token(&token_result).unwrap();
+
+    assert_eq!(claims.claims.sub, "esteban");
 }

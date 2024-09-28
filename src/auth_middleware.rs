@@ -1,5 +1,5 @@
 use axum::{extract::{Request, State}, http::StatusCode, middleware::Next, response::IntoResponse};
-use tracing::error;
+use tracing::{error, info};
 
 use crate::user_service::token_provider::TokenProvider;
 
@@ -25,6 +25,8 @@ pub async fn auth_middleware(
     })?;
 
     let jwt_token_string = auth_str.strip_prefix("Bearer ").ok_or(StatusCode::UNAUTHORIZED)?;
+
+    info!("The token is: |{}|", jwt_token_string);
 
     let claims = token_provider.verify_token(jwt_token_string)
         .map_err(|err| {
