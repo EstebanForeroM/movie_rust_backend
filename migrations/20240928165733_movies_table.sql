@@ -1,53 +1,54 @@
 -- Add migration script here
 
 CREATE TABLE language (
-    languageId SERIAL PRIMARY KEY,
-    languageName VARCHAR(20) NOT NULL
+    language_id SERIAL PRIMARY KEY,
+    language_name VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE classification (
-    classificationId SERIAL PRIMARY KEY,
-    classificationName VARCHAR(20) NOT NULL
+    classification_id SERIAL PRIMARY KEY,
+    classification_name VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE movie (
-    movieId SERIAL PRIMARY KEY,
-    distributionTitle VARCHAR(40) NOT NULL,
-    originalTitle VARCHAR(40)  NOT NULL,
-    originalLanguageId INTEGER  NOT NULL,
-    hasSpanishSubtitles BOOLEAN  NOT NULL,
-    productionYear INTEGER  NOT NULL,
-    websiteURL VARCHAR(100) NOT NULL,
-    imageURL VARCHAR(100) NOT NULL,
-    durationHours INTEGER NOT NULL,
+    movie_id SERIAL PRIMARY KEY,
+    distribution_title VARCHAR(40) NOT NULL,
+    original_title VARCHAR(40) NOT NULL,
+    original_language_id INTEGER NOT NULL,
+    has_spanish_subtitles BOOLEAN NOT NULL,
+    production_year INTEGER NOT NULL,
+    website_url VARCHAR(100) NOT NULL,
+    image_url VARCHAR(100) NOT NULL,
+    duration_hours INTEGER NOT NULL,
     summary TEXT,
-    classificationId INTEGER NOT NULL,
-    FOREIGN KEY (originalLanguageId) REFERENCES language(languageId),
-    FOREIGN KEY (classificationId) REFERENCES classification(classificationId)
+    classification_id INTEGER NOT NULL,
+    FOREIGN KEY (original_language_id) REFERENCES language(language_id),
+    FOREIGN KEY (classification_id) REFERENCES classification(classification_id)
 );
 
 CREATE TABLE country (
-    countryId SERIAL PRIMARY KEY,
-    countryName VARCHAR(30) NOT NULL
+    country_id SERIAL PRIMARY KEY,
+    country_name VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE movie_country (
-    movieId INTEGER NOT NULL,
-    countryId INTEGER NOT NULL,
-    PRIMARY KEY (movieId, countryId),
-    FOREIGN KEY (movieId) REFERENCES movie(movieId),
-    FOREIGN KEY (countryId) REFERENCES country(countryId)
+    movie_id INTEGER NOT NULL,
+    country_id INTEGER NOT NULL,
+    PRIMARY KEY (movie_id, country_id),
+    FOREIGN KEY (movie_id) REFERENCES movie(movie_id),
+    FOREIGN KEY (country_id) REFERENCES country(country_id)
 );
 
-CREATE TABLE gender (
-    genderId SERIAL PRIMARY KEY,
-    genderName VARCHAR(30) NOT NULL
+CREATE TABLE genre (
+    genre_id SERIAL PRIMARY KEY,
+    genre_name VARCHAR(30) NOT NULL
 );
 
-CREATE TABLE movie_gender (
-    genderId INTEGER NOT NULL,
-    movieId INTEGER NOT NULL,
-    PRIMARY KEY (genderId, movieId),
-    FOREIGN KEY (genderId) REFERENCES gender(genderId),
-    FOREIGN KEY (movieId) REFERENCES movie(movieId)
+CREATE TABLE movie_genre (
+    genre_id INTEGER NOT NULL,
+    movie_id INTEGER NOT NULL,
+    PRIMARY KEY (genre_id, movie_id),
+    FOREIGN KEY (genre_id) REFERENCES genre(genre_id),
+    FOREIGN KEY (movie_id) REFERENCES movie(movie_id)
 );
+
