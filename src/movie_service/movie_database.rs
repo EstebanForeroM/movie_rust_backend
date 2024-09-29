@@ -88,9 +88,14 @@ movie_id, distribution_title, image_url FROM movie OFFSET $1 LIMIT $2", offset, 
         let movies = sqlx::query_as!(Movie, "SELECT 
 m.movie_id, m.distribution_title, m.original_title, l.language_name AS original_language,
 m.has_spanish_subtitles, m.production_year, m.website_url, m.image_url, m.duration_hours,
-m.summary, c.classification_name AS classification FROM movie m
+m.summary, c.classification_name AS classification, co.country_name AS origin_country,
+g.genre_name AS genre FROM movie m
 INNER JOIN language l ON l.language_id = m.original_language_id
 INNER JOIN classification c ON c.classification_id = m.classification_id
+INNER JOIN movie_genre mg ON mg.genre_id = m.movie_id
+INNER JOIN genre g ON g.genre_id = mg.genre_id
+INNER JOIN movie_country mc ON mc.movie_id = m.movie_id
+INNER JOIN country co ON co.country_id = mc.country_id
 OFFSET $1 LIMIT $2", offset, quantity)
             .fetch_all(&self.pool).await?;        
 
@@ -101,9 +106,14 @@ OFFSET $1 LIMIT $2", offset, quantity)
         let country = sqlx::query_as!(Movie, "SELECT 
 m.movie_id, m.distribution_title, m.original_title, l.language_name AS original_language,
 m.has_spanish_subtitles, m.production_year, m.website_url, m.image_url, m.duration_hours,
-m.summary, c.classification_name AS classification FROM movie m
+m.summary, c.classification_name AS classification, co.country_name AS origin_country,
+g.genre_name AS genre FROM movie m
 INNER JOIN language l ON l.language_id = m.original_language_id
 INNER JOIN classification c ON c.classification_id = m.classification_id
+INNER JOIN movie_genre mg ON mg.genre_id = m.movie_id
+INNER JOIN genre g ON g.genre_id = mg.genre_id
+INNER JOIN movie_country mc ON mc.movie_id = m.movie_id
+INNER JOIN country co ON co.country_id = mc.country_id
 WHERE m.movie_id = $1", movie_id)
             .fetch_one(&self.pool).await?;
 

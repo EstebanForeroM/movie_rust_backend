@@ -80,7 +80,9 @@ pub struct Movie {
     pub image_url: String,
     pub duration_hours: i32,
     pub summary: Option<String>,
-    pub classification: String
+    pub classification: String,
+    pub origin_country: String,
+    pub genre: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -119,7 +121,9 @@ impl MovieConstructor {
             image_url: self.image_url,
             duration_hours: self.duration_hours,
             summary: self.summary,
-            classification: self.classification
+            classification: self.classification,
+            genre: self.genre,
+            origin_country: self.origin_country
         }
     }
 }

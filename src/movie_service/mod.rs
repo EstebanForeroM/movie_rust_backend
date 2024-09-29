@@ -45,7 +45,6 @@ async fn health_check(Extension(client_info): Extension<ClientInfo>) -> String {
     format!("movie service alive, and client name is: {}", client_info.client_name)
 }
 
-// new creates
 async fn create_language(State(state): State<MovieServiceState>, Json(language_constructor): Json<LanguageConstructor>) -> Result<impl IntoResponse, StatusCode> {
     let db = MovieDb::new(state.db_pool);
 
@@ -80,7 +79,12 @@ async fn create_genre(State(state): State<MovieServiceState>, Json(genre_constru
 }
 
 async fn create_movie(State(state): State<MovieServiceState>, Json(movie_constructor): Json<MovieConstructor>) -> Result<impl IntoResponse, StatusCode> {
+    let movie_database = MovieDb::new(state.db_pool);
 
+    service::create_movie(movie_database, movie_constructor).await.map_err(|err| {
+        error!("Error creating movie: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     Ok(StatusCode::OK)
 }
