@@ -92,7 +92,7 @@ m.summary, c.classification_name AS classification, co.country_name AS origin_co
 g.genre_name AS genre FROM movie m
 INNER JOIN language l ON l.language_id = m.original_language_id
 INNER JOIN classification c ON c.classification_id = m.classification_id
-INNER JOIN movie_genre mg ON mg.genre_id = m.movie_id
+INNER JOIN movie_genre mg ON mg.movie_id = m.movie_id
 INNER JOIN genre g ON g.genre_id = mg.genre_id
 INNER JOIN movie_country mc ON mc.movie_id = m.movie_id
 INNER JOIN country co ON co.country_id = mc.country_id

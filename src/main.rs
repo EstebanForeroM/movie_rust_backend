@@ -28,7 +28,7 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
         .nest("/movie", movie_service_router)
         .layer(CorsLayer::permissive());
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3001")
         .await
         .unwrap();
 
