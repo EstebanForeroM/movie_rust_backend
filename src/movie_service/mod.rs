@@ -32,7 +32,7 @@ pub fn get_router(db_pool: PgPool) -> Router {
         .route("/basic_data_movie/page/:pageIndex/:quantity", get(get_movie_basic_data))
         // POSTS
         .route("/language", post(create_language))
-        .route("classification", post(create_classification))
+        .route("/classification", post(create_classification))
         .route("/country", post(create_country))
         .route("/genre", post(create_genre))
         .route("/movie", post(create_movie))
