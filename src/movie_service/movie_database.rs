@@ -220,7 +220,7 @@ WHERE m.movie_id = $1", movie_id)
     }
 
     pub async fn get_genre_id(&self, genre_name: String) -> Result<Option<i32>> {
-        let genre_id = sqlx::query_scalar!("SELECT country_id FROM country WHERE country_name = $1", genre_name)
+        let genre_id = sqlx::query_scalar!("SELECT genre_id FROM genre WHERE genre_name = $1", genre_name)
             .fetch_optional(&self.pool).await?;
 
         Ok(genre_id)
