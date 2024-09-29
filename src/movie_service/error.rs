@@ -18,15 +18,15 @@ pub enum MovieServiceError {
     InvalidPassword(String),
 
     #[error("Invalid language name")]
-    InvalidLanguageName(String),
+    InvalidLanguageName,
 
     #[error("Invalid genre name")]
-    InvalidGenreName(String),
+    InvalidGenreName,
 
     #[error("Invalid country name")]
-    InvalidCountryName(String),
+    InvalidCountryName,
 
     #[error("Invalid classification name")]
-    InvalidClassificationName(String),
+    InvalidClassificationName,
 
 }
