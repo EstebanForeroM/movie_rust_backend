@@ -68,7 +68,7 @@ impl LanguageConstructor {
     }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Movie {
     pub movie_id: i32,
     pub distribution_title: String,

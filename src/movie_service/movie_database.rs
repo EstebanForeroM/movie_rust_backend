@@ -1,4 +1,5 @@
 use sqlx::{pool, PgPool};
+use tracing::error;
 
 use super::domain::{BasicMovie, Classification, Country, Genre, Language, Movie};
 use super::error::Result;
@@ -224,5 +225,26 @@ WHERE m.movie_id = $1", movie_id)
             .fetch_optional(&self.pool).await?;
 
         Ok(genre_id)
+    }
+
+    pub async fn delete_movie_db(&self, id: i32) -> Result<()> {
+        sqlx::query!("DELETE FROM movie_country WHERE movie_id = $1", id).execute(&self.pool).await?;
+        sqlx::query!("DELETE FROM movie_genre WHERE genre_id = $1", id).execute(&self.pool).await?;
+        sqlx::query!("DELETE FROM movie WHERE movie_id = $1", id).execute(&self.pool).await?;
+        Ok(())
+    }
+
+    pub async fn update_movie_db(&self, movie: Movie) -> Result<()> {
+        let classification_id = self.get_classification_id(movie.classification).await?;
+        let lenguage_id = self.get_classification_id(movie.original_language).await?;
+
+        sqlx::query!("UPDATE movie SET distribution_title = $1, original_title = $2, 
+        original_language_id = $3, has_spanish_subtitles = $4, production_year = $5, website_url = $6,
+        image_url = $7, duration_hours = $8, summary = $9, classification_id = $10 WHERE movie_id = $11", 
+        movie.distribution_title, movie.original_title, lenguage_id, movie.has_spanish_subtitles, 
+        movie.production_year, movie.website_url, movie.image_url, movie.duration_hours, movie.summary,
+        classification_id, movie.movie_id).execute(&self.pool).await?;
+
+        Ok(())
     }
 }

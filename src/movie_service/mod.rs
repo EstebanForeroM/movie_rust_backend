@@ -1,5 +1,5 @@
-use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::{get, post}, Extension, Json, Router};
-use domain::{ClassificationConstructor, CountryConstructor, GenreConstructor, LanguageConstructor, MovieConstructor};
+use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::{delete, get, post, put}, Extension, Json, Router};
+use domain::{ClassificationConstructor, CountryConstructor, GenreConstructor, LanguageConstructor, Movie, MovieConstructor};
 use movie_database::MovieDb;
 use sqlx::PgPool;
 use tracing::error;
@@ -36,6 +36,9 @@ pub fn get_router(db_pool: PgPool) -> Router {
         .route("/country", post(create_country))
         .route("/genre", post(create_genre))
         .route("/movie", post(create_movie))
+
+        .route("/movie/:movieId", delete(delete_movie))
+        .route("/movie", put(update_movie))
         .with_state(MovieServiceState {
             db_pool,
         })
@@ -86,6 +89,27 @@ async fn create_movie(State(state): State<MovieServiceState>, Json(movie_constru
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
+    Ok(StatusCode::OK)
+}
+
+async fn delete_movie(State(state): State<MovieServiceState>, Path(id): Path<i32>) -> Result<impl IntoResponse, StatusCode> {
+    let db = MovieDb::new(state.db_pool);
+
+    db.delete_movie_db(id).await.map_err(|err| {
+        error!("Error creating Movie: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok(StatusCode::OK)
+}
+
+async fn update_movie(State(state): State<MovieServiceState>, Json(movie): Json<Movie>) -> Result<impl IntoResponse, StatusCode> {
+    let db = MovieDb::new(state.db_pool);
+
+    db.update_movie_db(movie).await.map_err(|err| {
+        error!("Error updating movie: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
     Ok(StatusCode::OK)
 }
 
