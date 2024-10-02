@@ -122,6 +122,11 @@ async fn get_movie_search(State(state): State<MovieServiceState>, Path(movie_nam
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
+    let movies = serde_json::to_string(&movies).map_err(|err| {
+        error!("Error stringifing movies: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
     Ok((StatusCode::OK, movies))
 }
 
