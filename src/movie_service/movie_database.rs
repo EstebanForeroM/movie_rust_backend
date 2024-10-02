@@ -260,6 +260,8 @@ WHERE m.movie_id = $1", movie_id)
         movie.production_year, movie.website_url, movie.image_url, movie.duration_hours, movie.summary,
         classification_id, movie.movie_id).execute(&mut tx).await?;
 
+        tx.commit().await?;
+
         Ok(())
     }
 
