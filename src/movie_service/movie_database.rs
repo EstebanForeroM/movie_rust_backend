@@ -1,7 +1,7 @@
 use sqlx::{pool, PgPool};
 use tracing::error;
 
-use super::domain::{BasicMovie, Classification, Country, Genre, Language, Movie};
+use super::domain::{BasicMovie, Classification, Country, Genre, Language, Movie, MovieConstructor};
 use super::error::Result;
 
 pub struct MovieDb {
@@ -246,5 +246,22 @@ WHERE m.movie_id = $1", movie_id)
         classification_id, movie.movie_id).execute(&self.pool).await?;
 
         Ok(())
+    }
+
+    pub async fn get_movie_search_db(&self, movie_name: String) -> Result<Vec<Movie>> {
+        let movie_name = format!("%{}%", movie_name);
+        let movies = sqlx::query_as!(Movie, "SELECT 
+m.movie_id, m.distribution_title, m.original_title, l.language_name AS original_language,
+m.has_spanish_subtitles, m.production_year, m.website_url, m.image_url, m.duration_hours,
+m.summary, c.classification_name AS classification, co.country_name AS origin_country,
+g.genre_name AS genre FROM movie m
+INNER JOIN language l ON l.language_id = m.original_language_id
+INNER JOIN classification c ON c.classification_id = m.classification_id
+INNER JOIN movie_genre mg ON mg.movie_id = m.movie_id
+INNER JOIN genre g ON g.genre_id = mg.genre_id
+INNER JOIN movie_country mc ON mc.movie_id = m.movie_id
+INNER JOIN country co ON co.country_id = mc.country_id
+WHERE distribution_title LIKE $1 OR original_title LIKE $1", movie_name).fetch_all(&self.pool).await?;
+        Ok(movies)
     }
 }

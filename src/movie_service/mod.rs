@@ -30,6 +30,7 @@ pub fn get_router(db_pool: PgPool) -> Router {
         .route("/movie/page/:pageIndex/:quantity", get(get_movies))
         .route("/movie/:movieId", get(get_movie))
         .route("/basic_data_movie/page/:pageIndex/:quantity", get(get_movie_basic_data))
+        .route("/search/:movieName", get(get_movie_search))
         // POSTS
         .route("/language", post(create_language))
         .route("/classification", post(create_classification))
@@ -108,6 +109,16 @@ async fn update_movie(State(state): State<MovieServiceState>, Json(movie): Json<
 
     db.update_movie_db(movie).await.map_err(|err| {
         error!("Error updating movie: {}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+    Ok(StatusCode::OK)
+}
+
+async fn get_movie_search(State(state): State<MovieServiceState>, Path(movie_name): Path<String>) -> Result<impl IntoResponse, StatusCode> {
+    let db = MovieDb::new(state.db_pool); 
+
+    db.get_movie_search_db(movie_name).await.map_err(|err| {
+        error!("Error getting movie by name: {}", err);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
     Ok(StatusCode::OK)
