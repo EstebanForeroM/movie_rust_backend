@@ -247,16 +247,10 @@ WHERE m.movie_id = $1", movie_id)
 
         let mut tx = self.pool.begin().await?;
 
-        sqlx::query!("DELETE FROM movie_country WHERE movie_id = $1", movie.movie_id)
+        sqlx::query!("UPDATE movie_genre SET genre_id = $2 WHERE movie_id = $1", movie.movie_id, genre_id)
             .execute(&mut tx).await?;
 
-        sqlx::query!("DELETE FROM movie_genre WHERE movie_id = $1", movie.movie_id)
-            .execute(&mut tx).await?;
-
-        sqlx::query!("INSERT INTO movie_genre(movie_id, genre_id) VALUES ($1, $2)", movie.movie_id, genre_id)
-            .execute(&mut tx).await?;
-
-        sqlx::query!("INSERT INTO movie_country(movie_id, country_id) VALUES ($1, $2)", movie.movie_id, country_id)
+        sqlx::query!("UPDATE movie_country SET country_id = $2 WHERE movie_id = $1", movie.movie_id, country_id)
             .execute(&mut tx).await?;
 
         sqlx::query!("UPDATE movie SET distribution_title = $1, original_title = $2, 
