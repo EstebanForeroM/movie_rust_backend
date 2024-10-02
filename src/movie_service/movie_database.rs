@@ -261,7 +261,7 @@ INNER JOIN movie_genre mg ON mg.movie_id = m.movie_id
 INNER JOIN genre g ON g.genre_id = mg.genre_id
 INNER JOIN movie_country mc ON mc.movie_id = m.movie_id
 INNER JOIN country co ON co.country_id = mc.country_id
-WHERE distribution_title LIKE $1 OR original_title LIKE $1", movie_name).fetch_all(&self.pool).await?;
+WHERE distribution_title ILIKE $1 OR original_title ILIKE $1", movie_name).fetch_all(&self.pool).await?;
         Ok(movies)
     }
 }
