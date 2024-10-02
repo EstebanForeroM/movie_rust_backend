@@ -227,10 +227,10 @@ WHERE m.movie_id = $1", movie_id)
         Ok(genre_id)
     }
 
-    pub async fn delete_movie_db(&self, id: i32) -> Result<()> {
-        sqlx::query!("DELETE FROM movie_country WHERE movie_id = $1", id).execute(&self.pool).await?;
-        sqlx::query!("DELETE FROM movie_genre WHERE genre_id = $1", id).execute(&self.pool).await?;
-        sqlx::query!("DELETE FROM movie WHERE movie_id = $1", id).execute(&self.pool).await?;
+    pub async fn delete_movie_db(&self, movie_id: i32) -> Result<()> {
+        sqlx::query!("DELETE FROM movie_country WHERE movie_id = $1", movie_id).execute(&self.pool).await?;
+        sqlx::query!("DELETE FROM movie_genre WHERE movie_id = $1", movie_id).execute(&self.pool).await?;
+        sqlx::query!("DELETE FROM movie WHERE movie_id = $1", movie_id).execute(&self.pool).await?;
         Ok(())
     }
 
