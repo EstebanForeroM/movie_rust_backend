@@ -242,13 +242,29 @@ WHERE m.movie_id = $1", movie_id)
     pub async fn update_movie_db(&self, movie: Movie) -> Result<()> {
         let classification_id = self.get_classification_id(movie.classification).await?;
         let language_id = self.get_language_id(movie.original_language).await?;
+        let genre_id = self.get_genre_id(movie.genre).await?;
+        let country_id = self.get_country_id(movie.origin_country).await?;
+
+        let mut tx = self.pool.begin().await?;
+
+        sqlx::query!("DELETE FROM movie_country WHERE movie_id = $1", movie.movie_id)
+            .execute(&mut tx).await?;
+
+        sqlx::query!("DELETE FROM movie_genre WHERE movie_id = $1", movie.movie_id)
+            .execute(&mut tx).await?;
+
+        sqlx::query!("INSERT INTO movie_genre(movie_id, genre_id) VALUES ($1, $2)", movie.movie_id, genre_id)
+            .execute(&mut tx).await?;
+
+        sqlx::query!("INSERT INTO movie_country(movie_id, country_id) VALUES ($1, $2)", movie.movie_id, country_id)
+            .execute(&mut tx).await?;
 
         sqlx::query!("UPDATE movie SET distribution_title = $1, original_title = $2, 
         original_language_id = $3, has_spanish_subtitles = $4, production_year = $5, website_url = $6,
         image_url = $7, duration_hours = $8, summary = $9, classification_id = $10 WHERE movie_id = $11", 
         movie.distribution_title, movie.original_title, language_id, movie.has_spanish_subtitles, 
         movie.production_year, movie.website_url, movie.image_url, movie.duration_hours, movie.summary,
-        classification_id, movie.movie_id).execute(&self.pool).await?;
+        classification_id, movie.movie_id).execute(&mut tx).await?;
 
         Ok(())
     }
