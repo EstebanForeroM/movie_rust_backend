@@ -117,11 +117,12 @@ async fn update_movie(State(state): State<MovieServiceState>, Json(movie): Json<
 async fn get_movie_search(State(state): State<MovieServiceState>, Path(movie_name): Path<String>) -> Result<impl IntoResponse, StatusCode> {
     let db = MovieDb::new(state.db_pool); 
 
-    db.get_movie_search_db(movie_name).await.map_err(|err| {
+    let movies = db.get_movie_search_db(movie_name).await.map_err(|err| {
         error!("Error getting movie by name: {}", err);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
-    Ok(StatusCode::OK)
+
+    Ok((StatusCode::OK, movies))
 }
 
 async fn get_movie_basic_data(State(state): State<MovieServiceState>, Path((page, quantity)): Path<(i64, i64)>) -> Result<impl IntoResponse, StatusCode> {
