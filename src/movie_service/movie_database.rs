@@ -228,9 +228,14 @@ WHERE m.movie_id = $1", movie_id)
     }
 
     pub async fn delete_movie_db(&self, movie_id: i32) -> Result<()> {
-        sqlx::query!("DELETE FROM movie_country WHERE movie_id = $1", movie_id).execute(&self.pool).await?;
-        sqlx::query!("DELETE FROM movie_genre WHERE movie_id = $1", movie_id).execute(&self.pool).await?;
-        sqlx::query!("DELETE FROM movie WHERE movie_id = $1", movie_id).execute(&self.pool).await?;
+        let mut tx = self.pool.begin().await?;
+
+        sqlx::query!("DELETE FROM movie_country WHERE movie_id = $1", movie_id).execute(&mut tx).await?;
+        sqlx::query!("DELETE FROM movie_genre WHERE movie_id = $1", movie_id).execute(&mut tx).await?;
+        sqlx::query!("DELETE FROM movie WHERE movie_id = $1", movie_id).execute(&mut tx).await?;
+
+        tx.commit().await?;
+
         Ok(())
     }
 
